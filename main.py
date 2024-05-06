@@ -3,25 +3,32 @@ from flask import Flask, request, jsonify
 app = Flask(__name__)
 aircraft_registry = {}
 
-# Function to register an aircraft
-def register_aircraft(data):
+# Function to register or update an aircraft
+def register_or_update_aircraft(data):
     aircraft_id = data.get('aircraft_id')
     if aircraft_id:
-        aircraft_registry[aircraft_id] = {
-            'callsign': data.get('callsign', 'Unknown'),
-            'latitude': data.get('latitude', 0.0),
-            'longitude': data.get('longitude', 0.0),
-            'altitude': data.get('altitude', 0),
-            'heading': data.get('heading', 0),
-            'speed': data.get('speed', 0),
-            'squawk': data.get('squawk', '0000'),
-            'connected': data.get('connected', False),  # Default to False if not provided
-            'departure': data.get('departure', "N/A"),
-            'arrival': data.get('arrival', "N/A"),
-            'flight_plan': data.get('flight_plan', "N/A"),
-            'cruise_altitude': data.get('cruise', "N/A"),
-        }
-        return {"message": f"Aircraft {aircraft_id} registered successfully"}
+        if aircraft_id in aircraft_registry:
+            # If aircraft already registered, update DEP and ARR only
+            aircraft_registry[aircraft_id]['departure'] = data.get('departure', aircraft_registry[aircraft_id]['departure'])
+            aircraft_registry[aircraft_id]['arrival'] = data.get('arrival', aircraft_registry[aircraft_id]['arrival'])
+            return {"message": f"Aircraft {aircraft_id} information updated successfully"}
+        else:
+            # If aircraft not registered, register with full data
+            aircraft_registry[aircraft_id] = {
+                'callsign': data.get('callsign', 'Unknown'),
+                'latitude': data.get('latitude', 0.0),
+                'longitude': data.get('longitude', 0.0),
+                'altitude': data.get('altitude', 0),
+                'heading': data.get('heading', 0),
+                'speed': data.get('speed', 0),
+                'squawk': data.get('squawk', '0000'),
+                'connected': data.get('connected', False),  # Default to False if not provided
+                'departure': data.get('departure', "N/A"),
+                'arrival': data.get('arrival', "N/A"),
+                'flight_plan': data.get('flight_plan', "N/A"),
+                'cruise_altitude': data.get('cruise', "N/A"),
+            }
+            return {"message": f"Aircraft {aircraft_id} registered successfully"}
     else:
         return {"error": "Aircraft ID not provided"}, 400
 
@@ -32,7 +39,7 @@ def is_aircraft_connected(aircraft_id):
 @app.route('/register_aircraft', methods=['POST'])
 def post_endpoint():
     data = request.json
-    return jsonify(register_aircraft(data))
+    return jsonify(register_or_update_aircraft(data))
 
 @app.route('/get_aircrafts', methods=['GET'])
 def get_aircrafts():
