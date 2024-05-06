@@ -14,7 +14,7 @@ def register_or_update_aircraft(data):
             aircraft_registry[aircraft_id]['longitude'] = data.get('longitude', aircraft_registry[aircraft_id]['longitude'])
             aircraft_registry[aircraft_id]['departure'] = data.get('departure', aircraft_registry[aircraft_id]['departure'])
             aircraft_registry[aircraft_id]['arrival'] = data.get('arrival', aircraft_registry[aircraft_id]['arrival'])
-            aircraft_registry[aircraft_id]['callsign'] = data.get('arrival', aircraft_registry[aircraft_id]['callsign'])
+            aircraft_registry[aircraft_id]['callsign'] = data.get('callsign', aircraft_registry[aircraft_id]['callsign'])
             return {"message": f"Aircraft {aircraft_id} information updated successfully"}
         else:
             # If aircraft not registered, register with full data
